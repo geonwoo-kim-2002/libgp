@@ -164,10 +164,16 @@ namespace libgp {
     int n = sampleset->size();
     // resize L if necessary
     if (n > L.rows()) L.resize(n + initial_L_size, n + initial_L_size);
+    
+    bool has_y_vars = (y_vars.size() == n); // custom
     // compute kernel matrix (lower triangle)
     for(size_t i = 0; i < sampleset->size(); ++i) {
       for(size_t j = 0; j <= i; ++j) {
         L(i, j) = cf->get(sampleset->x(i), sampleset->x(j));
+        
+        if (i == j && has_y_vars) { //custom
+          L(i, j) += y_vars(i);
+        }
       }
     }
     // perform cholesky factorization
@@ -351,4 +357,20 @@ namespace libgp {
 
     return grad;
   }
+  
+  // custom
+  void GaussianProcess::set_y_vars(const Eigen::VectorXd& y_vars_in)
+  {
+    if (y_vars_in.size() != sampleset->size()) {
+        std::cerr << "Error: size of y_vars must match number of samples." << std::endl;
+        return;
+    }
+    y_vars = y_vars_in;
+
+    if (cf) {
+      cf->loghyper_changed = true;
+    }
+    alpha_needs_update = true;
+  }
+
 }

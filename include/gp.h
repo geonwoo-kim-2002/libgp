@@ -99,6 +99,9 @@ namespace libgp {
     
     Eigen::VectorXd log_likelihood_gradient();
 
+    // custom
+    void set_y_vars(const Eigen::VectorXd& y_vars);
+
   protected:
     
     /** The covariance function of this Gaussian process. */
@@ -129,7 +132,11 @@ namespace libgp {
     virtual void compute();
     
     bool alpha_needs_update;
-
+    
+    // custom
+    Eigen::MatrixXd C;
+    Eigen::VectorXd y_vars;
+    
   private:
 
     /** No assignement */
